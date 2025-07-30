@@ -3,7 +3,7 @@
 
 #include "common_defines.h"
 
-#define CPU_FREQ (uint32_t)(72'000'000)
+#define CPU_FREQ (uint32_t)(64'000'000)
 #define SYSTICK_FREQ (uint32_t)(1'000)
 
 // setup systick

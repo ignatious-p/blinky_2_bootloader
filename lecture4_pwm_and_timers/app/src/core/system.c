@@ -1,4 +1,5 @@
 #include "core/system.h"
+#include "libopencm3/stm32/f1/rcc.h"
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/vector.h>
@@ -20,9 +21,10 @@ void sys_tick_handler(void) {
 }
 
 static void rcc_setup(void) {
-  // we use the high speed external clock at 72MHz
-  rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE12_72MHZ]);
-  rcc_periph_clock_enable(RCC_GPIOC | RCC_GPIOA);
+  // we use the high speed internal clock at 64MHz
+  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
+  rcc_periph_clock_enable(RCC_GPIOC);
+  rcc_periph_clock_enable(RCC_GPIOA);
 }
 
 static void systick_setup() {

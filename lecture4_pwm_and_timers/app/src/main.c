@@ -1,8 +1,9 @@
 #include "common_defines.h"
 #include "core/system.h"
 #include "core/timer.h"
-#include "libopencm3/stm32/f1/gpio.h"
+#include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/gpio.h>
+
 #include <libopencm3/stm32/rcc.h>
 
 // LED is at PC13 according to
@@ -24,11 +25,17 @@
 #define MY_LED_PORT (uint32_t)GPIOA
 #define MY_LED_PIN (uint16_t)GPIO15
 
-constexpr uint64_t INCREMENT_MILLIS = 10;
+constexpr uint64_t INCREMENT_MILLIS = 100;
 
 static void gpio_setup(void) {
-  gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, LED_PIN);
+  // set up the onboard LED
+  gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
+                LED_PIN);
+  gpio_set(LED_PORT, LED_PIN);
+
+  // setup the external LED which also has PWM
+  gpio_set_mode(MY_LED_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, MY_LED_PIN);
 }
 
 int main(void) {
@@ -36,22 +43,29 @@ int main(void) {
   timer_setup();
   gpio_setup();
 
-  uint64_t start_time = system_get_ticks();
+  volatile uint64_t start_time = system_get_ticks();
   float duty_cycle = 0.0f;
 
   while (true) {
     if (system_get_ticks() - start_time > INCREMENT_MILLIS) {
       // increment the duty cycle gradually and reset it once it is maxed out
-      duty_cycle += 1.0f;
-      if (duty_cycle >= 100.0f) {
+      if (duty_cycle < 100.0f) {
+        duty_cycle += 1.0f;
+      } else {
         duty_cycle = 0.0f;
       }
+
+      // toggle the onboard LED
+      gpio_toggle(LED_PORT, LED_PIN);
+
+      // increase the PWM of the off board LED
       timer_pwm_set_duty_cycle(duty_cycle);
+
       start_time = system_get_ticks();
     }
-
-    // We are free to do useful work here, wheeee!
   }
+
+  // We are free to do useful work here, wheeee!
 
   // never return
   return 0;

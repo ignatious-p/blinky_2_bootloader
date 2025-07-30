@@ -5,7 +5,7 @@
 #include <libopencm3/stm32/timer.h>
 
 // freq = system_freq /((prescaler -1)*(arr-1))
-#define PRESCALER (72)
+#define PRESCALER (64)
 #define ARR_VALUE (1000)
 
 // Setup timer TIM2 for PWM
@@ -40,7 +40,7 @@ void timer_pwm_set_duty_cycle(float duty_cycle) {
   // duty cycle = (ccr /arr) * 100
   // ccr = arr * (duty cycle / 100)
 
-  const float raw_value = (float)ARR_VALUE * (duty_cycle / 100.0f);
+  float raw_value = (float)ARR_VALUE * (duty_cycle / 100.0f);
 
   timer_set_oc_value(TIM2, TIM_OC1, (uint32_t)raw_value);
 };
