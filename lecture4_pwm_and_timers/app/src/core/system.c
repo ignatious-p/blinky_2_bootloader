@@ -6,12 +6,12 @@
 #include <libopencm3/stm32/rcc.h>
 
 // why 64 bits? because the ticks value will increment once every
-// millisecond. if we wnt with a 32 bit number, it will overflow in 49.7
-// days, exactly like it does in Arduino's millis(). with a 64 bit number,
+// millisecond. If we went with a 32-bit number, it will overflow in 49.7
+// days, exactly like it does in Arduino's millis(). With a 64 bit number,
 // it will overflow in 213503982334.6 days. If your device manages to last
 // that long, the human race will likely no longer exist. However, this is
 // not a magic bullet either. We are dealing with a 32 bit architecture and
-// on our chip we don't have a 64bit add instruction that can happen withing
+// on our chip we don't have a 64bit add instruction that can happen within
 // one cycle. We need to do all operations with this value with interrupts
 // disabled.
 static volatile uint64_t ticks = 0;

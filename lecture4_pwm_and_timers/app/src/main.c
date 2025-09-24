@@ -21,9 +21,9 @@
 #define LED_PIN (uint16_t)GPIO13
 
 // This is an externally attached LED that is there as the inbuilt one cannot do
-// PWM (at least not without requiring some Dmitry Grinberg-esque hackery).
+// PWM, using the timer.
 #define MY_LED_PORT (uint32_t)GPIOA
-#define MY_LED_PIN (uint16_t)GPIO15
+#define MY_LED_PIN (uint16_t)GPIO8
 
 constexpr uint64_t INCREMENT_MILLIS = 100;
 
@@ -31,6 +31,8 @@ static void gpio_setup(void) {
   // set up the onboard LED
   gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
                 LED_PIN);
+
+  // turn the onboard LED ON
   gpio_set(LED_PORT, LED_PIN);
 
   // setup the external LED which also has PWM
