@@ -21,12 +21,12 @@
 #define LED_PIN (uint16_t)GPIO13
 
 // This is an externally attached LED that is there as the inbuilt one cannot do
-// PWM (at least not without requiring some Dmitry Grinberg-esque hackery).
+// PWM, using the timer.
 #define MY_LED_PORT (uint32_t)GPIOA
-#define MY_LED_PIN (uint16_t)GPIO15
+#define MY_LED_PIN (uint16_t)GPIO8
 
-constexpr uint64_t INCREMENT_MILLIS = 10;
-constexpr uint64_t TOGGLE_MILLIS = 100;
+constexpr uint64_t INCREMENT_MILLIS = 100;
+constexpr uint64_t TOGGLE_MILLIS = 1000;
 
 #define BOOTLOADER_SIZE (0x2000U)
 
@@ -37,13 +37,14 @@ static void vector_setup(void) {
 }
 
 static void gpio_setup(void) {
-
-  // set up the dumb PC13 led to just be there
+  // set up the onboard LED
   gpio_set_mode(LED_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
                 LED_PIN);
+
+  // turn the onboard LED ON
   gpio_set(LED_PORT, LED_PIN);
 
-  // set up the PA15 led
+  // setup the external LED which also has PWM
   gpio_set_mode(MY_LED_PORT, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, MY_LED_PIN);
 }
@@ -60,13 +61,15 @@ int main(void) {
 
   while (true) {
 
-    // PWM the PA15 LED
+    // PWM the PA8 LED
     if ((system_get_ticks() - start_time) > INCREMENT_MILLIS) {
       // increment the duty cycle gradually and reset it once it is maxed out
       duty_cycle += 1.0f;
       if (duty_cycle >= 100.0f) {
         duty_cycle = 0.0f;
       }
+
+      // set the duty cycle of the PWM output
       timer_pwm_set_duty_cycle(duty_cycle);
 
       start_time = system_get_ticks();
@@ -81,6 +84,5 @@ int main(void) {
 
   // We are free to do useful work here, wheeee!
 
-  // never return
   return 0;
 }
